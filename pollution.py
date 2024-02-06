@@ -3,16 +3,24 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from time import *
-
+import requests
+from io import StringIO
 
 def var(annee= input("rentrez l'année: "), mois= input("rentrez le mois : "), jour = input("rentrez le jour: ")):
     # On utilise ces valeurs pour créer l'URL du fichier CSV à télécharger
 
     url = (f"https://files.data.gouv.fr/lcsqa/concentrations-de-polluants-atmospheriques-reglementes/temps-reel/{annee}/FR_E2_{annee}-{mois}-{jour}.csv")
-    
-    # On utilise la fonction read_csv de pandas pour lire le fichier CSV à partir de l'URL
-    lire = pd.read_csv(url, sep = ";")
 
+    response = requests.get(url, verify=False)  # Pour développement seulement
+
+    # Décoder le contenu en utilisant l'encodage utf8
+    content_decoded = response.content.decode('UTF-8')
+
+    # Créer un StringIO à partir du contenu décodé
+    content = StringIO(content_decoded)
+
+    # Lire le contenu avec pandas, spécifiant le séparateur et l'encodage si nécessaire
+    lire = pd.read_csv(content, sep=";")
     
     # On sélectionne les lignes du fichier qui correspondent au site "VITRY-SUR-SEINE"
     vitry = lire[lire["nom site"]== "VITRY-SUR-SEINE"]
